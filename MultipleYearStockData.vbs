@@ -8,115 +8,97 @@
 
 Sub MultipleYearStockData()
 
-    Dim Q1 As Worksheet
-    Dim Q2 As Worksheet
-    Dim Q3 As Worksheet
-    Dim Q4 As Worksheet
-    Dim i As Integer
+    Dim SheetName As Variant
+    Dim SheetNames As Variant
+
+    SheetNames = Array("Q1", "Q2", "Q3", "Q4")
+
+    For Each SheetName In SheetNames
+
+        Dim ws As Worksheet
+        Dim LastRow As Long
+
+        Set ws = ThisWorkbook.Sheets(SheetName)
+        LastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+        ws.Cells(1, 10).Value = "Ticker"
+        ws.Cells(1, 11).Value = "Quarterly SChange"
+        ws.Cells(1, 12).Value = "Percent Change"
+        ws.Cells(1, 13).Value = "Total Stock Volume"
 
 
-    ' Set the worksheet variables To the corresponding sheets
-    Set Q1 = ThisWorkbook.Sheets("Q1")
-    Set Q2 = ThisWorkbook.Sheets("Q2")
-    Set Q3 = ThisWorkbook.Sheets("Q3")
-    Set Q4 = ThisWorkbook.Sheets("Q4")
+        Dim InputRow As Long
+        Dim OutputRow As Long
+        Dim Ticker As String
+        Dim TargetRow As Long
+
+        TargetRow = 1
 
 
-  
-    Q1.Cells(1, 10).Value = "Ticker"
-    Q1.Cells(1, 11).Value = "Quarterly Change"
-    Q1.Cells(1, 12).Value = "Percent Change"
-    Q1.Cells(1, 13).Value = "Total Stock Volume"
+        Dim Qchange As Double
+        Dim OpenPrice As Double
+        Dim ClosePrice As Double
+        Dim PercentChange As Double
+        Dim RoundedPercentage As Double
+        Dim TotalVolume As Double
+        Dim Volume As Double
+
+        For InputRow = 2 To LastRow
 
 
-    Dim ws As Worksheet
-    Dim LastRow As Long
+            If ws.Cells(InputRow, 1).Value <> Ticker Then
+                ' Ticker changes from InputRow - 1 To InputRow
 
-    Set ws = ThisWorkbook.Sheets("Q1")
-    LastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+                ' "close" the previous Ticker information
 
+                'Skips first row
+                If InputRow > 2 Then
+                    ClosePrice = ws.Cells(InputRow - 1, 6).Value
+                    Qchange = ClosePrice - OpenPrice
+                    ws.Cells(TargetRow, 11).Value = Qchange
 
-    Dim InputRow As Long
-    Dim OutputRow As Long
-    Dim Ticker As String
-    Dim TargetRow As Long
+                    ' Calculate percent change
+                    PercentChange = Qchange / OpenPrice * 100
+                    RoundedPercentage = Round(PercentChange, 2)
+                    ws.Cells(TargetRow, 12).Value = RoundedPercentage
 
-    TargetRow = 1
-
-    'Go through all tickers in Q1 (column A) And list all unique tickers To colum Ticker (J)
-    'For InputRow = 2 To LastRow
-    'If ws.Cells(InputRow, 1).Value <> Ticker Then
-    'Ticker = ws.Cells(InputRow, 1)
-    'ws.Cells(TargetRow, 10).Value = Ticker
-    'TargetRow = TargetRow + 1
-    'End If
-    'Next InputRow
+                    ws.Cells(TargetRow, 13).Value = TotalVolume
 
 
-    Dim Qchange As Double
-    Dim OpenPrice As Double
-    Dim ClosePrice As Double
-    Dim PercentChange As Double
-    Dim RoundedPercentage As Double
-    Dim TotalVolume As Double
-    Dim Volume As Double
 
-    For InputRow = 2 To LastRow
+                End If
 
+                ' Then, "open" the Next Ticker information
 
-        If ws.Cells(InputRow, 1).Value <> Ticker Then
-            ' Ticker changes from InputRow - 1 To InputRow
+                Ticker = ws.Cells(InputRow, 1)
 
-            ' "close" the previous Ticker information
+                'Get opening price
+                TargetRow = TargetRow + 1
+                ws.Cells(TargetRow, 10).Value = Ticker
+                OpenPrice = ws.Cells(InputRow, "C").Value
 
-            'Skips first row
-            If InputRow > 2 Then
-                ClosePrice = ws.Cells(InputRow - 1, 6).Value
-                Qchange = ClosePrice - OpenPrice
-                ws.Cells(TargetRow, 11).Value = Qchange
-
-                ' Calculate percent change
-                PercentChange = Qchange / OpenPrice * 100
-                RoundedPercentage = Round(PercentChange, 2)
-                ws.Cells(TargetRow, 12).Value = RoundedPercentage
-
-                ws.Cells(TargetRow, 13).Value = TotalVolume
-
-
+                TotalVolume = 0
 
             End If
 
-            ' Then, "open" the Next Ticker information
+            Volume = ws.Cells(InputRow, 7).Value
+            TotalVolume = Volume + TotalVolume
 
-            Ticker = ws.Cells(InputRow, 1)
+        Next InputRow
 
-            'Get opening price
-            TargetRow = TargetRow + 1
-            ws.Cells(TargetRow, 10).Value = Ticker
-            OpenPrice = ws.Cells(InputRow, "C").Value
+        'Calculates last row of Quarterly Change And Percent Change
+        ClosePrice = ws.Cells(InputRow - 1, 6).Value
+        Qchange = ClosePrice - OpenPrice
+        ws.Cells(TargetRow, 11).Value = Qchange
 
-            TotalVolume = 0
-
-        End If
-
-        Volume = ws.Cells(InputRow, 7).Value
-        TotalVolume = Volume + TotalVolume
-
-    Next InputRow
-
-    'Calculates last row of Quarterly Change And Percent Change
-    ClosePrice = ws.Cells(InputRow - 1, 6).Value
-    Qchange = ClosePrice - OpenPrice
-    ws.Cells(TargetRow, 11).Value = Qchange
-
-    PercentChange = Qchange / OpenPrice * 100
-    RoundedPercentage = Round(PercentChange, 2)
-    ws.Cells(TargetRow, 12).Value = RoundedPercentage
+        PercentChange = Qchange / OpenPrice * 100
+        RoundedPercentage = Round(PercentChange, 2)
+        ws.Cells(TargetRow, 12).Value = RoundedPercentage
 
 
-    ws.Cells(TargetRow, 13).Value = TotalVolume
+        ws.Cells(TargetRow, 13).Value = TotalVolume
 
-
+    Next SheetName
 
 End Sub
 
