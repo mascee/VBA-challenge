@@ -56,6 +56,12 @@ Sub MultipleYearStockData()
                     ClosePrice = ws.Cells(InputRow - 1, 6).Value
                     Qchange = ClosePrice - OpenPrice
                     ws.Cells(TargetRow, 11).Value = Qchange
+                    'Format color
+                    If Qchange < 0 Then
+                        ws.Cells(TargetRow, 11).Interior.Color = vbRed
+                    ElseIf Qchange > 0 Then
+                        ws.Cells(TargetRow, 11).Interior.Color = vbGreen
+                End If
 
                     ' Calculate percent change
                     PercentChange = Qchange / OpenPrice * 100
@@ -66,7 +72,7 @@ Sub MultipleYearStockData()
 
 
 
-                End If
+            End If
 
                 ' Then, "open" the Next Ticker information
 
@@ -76,6 +82,7 @@ Sub MultipleYearStockData()
                 TargetRow = TargetRow + 1
                 ws.Cells(TargetRow, 10).Value = Ticker
                 OpenPrice = ws.Cells(InputRow, "C").Value
+                
 
                 TotalVolume = 0
 
@@ -90,6 +97,12 @@ Sub MultipleYearStockData()
         ClosePrice = ws.Cells(InputRow - 1, 6).Value
         Qchange = ClosePrice - OpenPrice
         ws.Cells(TargetRow, 11).Value = Qchange
+        'Format color
+            If Qchange < 0 Then
+                ws.Cells(TargetRow, 11).Interior.Color = vbRed
+            ElseIf Qchange > 0 Then
+                ws.Cells(TargetRow, 11).Interior.Color = vbGreen
+            End If
 
         PercentChange = Qchange / OpenPrice * 100
         RoundedPercentage = Round(PercentChange, 2)
@@ -101,6 +114,7 @@ Sub MultipleYearStockData()
     Next SheetName
 
 End Sub
+
 
 
 
