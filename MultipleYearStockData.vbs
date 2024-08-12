@@ -22,9 +22,12 @@ Sub MultipleYearStockData()
         LastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
 
         ws.Cells(1, 10).Value = "Ticker"
-        ws.Cells(1, 11).Value = "Quarterly SChange"
+        ws.Cells(1, 11).Value = "Quarterly Change"
         ws.Cells(1, 12).Value = "Percent Change"
         ws.Cells(1, 13).Value = "Total Stock Volume"
+        ws.Cells(1, 16).Value = "Greatest % Increase"
+        ws.Cells(2, 16).Value = "Greatest % Decrease"
+        ws.Cells(3, 16).Value = "Greatest Total Volume"
 
 
         Dim InputRow As Long
@@ -39,7 +42,7 @@ Sub MultipleYearStockData()
         Dim OpenPrice As Double
         Dim ClosePrice As Double
         Dim PercentChange As Double
-        Dim RoundedPercentage As Double
+        'Dim RoundedPercentage As Double
         Dim TotalVolume As Double
         Dim Volume As Double
 
@@ -59,20 +62,19 @@ Sub MultipleYearStockData()
                     'Format color
                     If Qchange < 0 Then
                         ws.Cells(TargetRow, 11).Interior.Color = vbRed
-                    ElseIf Qchange > 0 Then
+                    Elseif Qchange > 0 Then
                         ws.Cells(TargetRow, 11).Interior.Color = vbGreen
-                End If
+                    End If
 
                     ' Calculate percent change
-                    PercentChange = Qchange / OpenPrice * 100
-                    RoundedPercentage = Round(PercentChange, 2)
-                    ws.Cells(TargetRow, 12).Value = RoundedPercentage
-
+                    PercentChange = Qchange / OpenPrice
+                    ws.Cells(TargetRow, 12).Value = PercentChange
+                    ws.Cells(TargetRow, 12).NumberFormat = "0.00%"
                     ws.Cells(TargetRow, 13).Value = TotalVolume
 
 
 
-            End If
+                End If
 
                 ' Then, "open" the Next Ticker information
 
@@ -82,7 +84,7 @@ Sub MultipleYearStockData()
                 TargetRow = TargetRow + 1
                 ws.Cells(TargetRow, 10).Value = Ticker
                 OpenPrice = ws.Cells(InputRow, "C").Value
-                
+
 
                 TotalVolume = 0
 
@@ -98,20 +100,48 @@ Sub MultipleYearStockData()
         Qchange = ClosePrice - OpenPrice
         ws.Cells(TargetRow, 11).Value = Qchange
         'Format color
-            If Qchange < 0 Then
-                ws.Cells(TargetRow, 11).Interior.Color = vbRed
-            ElseIf Qchange > 0 Then
-                ws.Cells(TargetRow, 11).Interior.Color = vbGreen
-            End If
+        If Qchange < 0 Then
+            ws.Cells(TargetRow, 11).Interior.Color = vbRed
+        Elseif Qchange > 0 Then
+            ws.Cells(TargetRow, 11).Interior.Color = vbGreen
+        End If
 
-        PercentChange = Qchange / OpenPrice * 100
-        RoundedPercentage = Round(PercentChange, 2)
-        ws.Cells(TargetRow, 12).Value = RoundedPercentage
+        PercentChange = Qchange / OpenPrice
+        ws.Cells(TargetRow, 13).NumberFormat = "0.00%"
 
 
         ws.Cells(TargetRow, 13).Value = TotalVolume
 
+
+
+        'Dim CorrespondingTicker As String
+        'Calculate Greatest Percent Increase in Column L Percent Change
+        Dim GreatestIncrease As Double
+        GreatestIncrease = WorksheetFunction.Max(ws.Range("L:L"))
+        ws.Cells(1, 18).Value = GreatestIncrease
+        ws.Cells(1, 18).NumberFormat = "0.00%"
+        'CorrespondingTicker = ws.Cells(maxRow, "J").Value
+        'ws.Cells(3, 17).Value = CorrespondingTicker
+
+        'Calculate Greatest Percent Decrease in Column L Percent Change
+        Dim GreatestDecrease As Double
+        GreatestDecrease = WorksheetFunction.Min(ws.Range("L:L"))
+        ws.Cells(2, 18).Value = GreatestDecrease
+        ws.Cells(2, 18).NumberFormat = "0.00%"
+
+        'Calculates Greatest Total Volume
+        Dim GreatestTotalVolume As Double
+
+        GreatestTotalVolume = WorksheetFunction.Max(ws.Range("M:M"))
+        ws.Cells(3, 18).Value = GreatestTotalVolume
+        'CorrespondingTicker = ws.Cells(maxRow, "J").Value
+        'ws.Cells(3, 17).Value = CorrespondingTicker
+
+
+
     Next SheetName
+
+    'MsgBox ("done")
 
 End Sub
 
