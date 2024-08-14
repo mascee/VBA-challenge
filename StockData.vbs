@@ -1,3 +1,0 @@
-Sub StockData()
-    
-End Sub
